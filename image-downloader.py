@@ -107,15 +107,34 @@ def download_csv_file_images(filename):
         if csv_start == b'\xef\xbb\xbf':
             skip_utf8_seek = 3
 
+    with open(filename, "r", encoding="utf8") as csvFile:
+        
+        # remove ut-8 bon sig
+        csvFile.seek(skip_utf8_seek)
 
+        csvreader = csv.DictReader(csvFile)
+
+        category_list = []
+        for row in csvreader:
+            category_list.append(row['category'])
+        category_list = list(set(category_list))
+
+        for dir in category_list:
+            if os.path.exists(os.path.join(dest_dir, dir)):
+                print('Directory already exists. Skipping...')
+            else:
+                os.makedirs(os.path.join(dest_dir, dir))
+        csvFile.close()
+    
     with open(filename, "r", encoding="utf8") as csvfile:
 
         # remove ut-8 bon sig
         csvfile.seek(skip_utf8_seek)
 
         csvreader = csv.DictReader(csvfile)
+
         for row in csvreader:
-            download_csv_row_images(row, dest_dir)
+            download_csv_row_images(row, os.path.join(dest_dir, row['category']))
 
 def main(args):
 
