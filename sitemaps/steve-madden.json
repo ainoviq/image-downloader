@@ -1,0 +1,48 @@
+{
+    "_id": "steve-madden",
+    "startUrl": [
+        "https://www.stevemadden.com/collections/sm-apparel"
+    ],
+    "selectors": [
+        {
+            "id": "category",
+            "parentSelectors": [
+                "_root"
+            ],
+            "type": "SelectorLink",
+            "selector": ".container .site-nav--active li:nth-of-type(2) li:nth-of-type(n+2) a",
+            "multiple": true,
+            "delay": 0
+        },
+        {
+            "id": "items",
+            "parentSelectors": [
+                "category"
+            ],
+            "type": "SelectorLink",
+            "selector": ".ais-hit--title a",
+            "multiple": true,
+            "delay": 0
+        },
+        {
+            "id": "images",
+            "parentSelectors": [
+                "items"
+            ],
+            "type": "SelectorImage",
+            "selector": "img.mainImg",
+            "multiple": true,
+            "delay": 0
+        },
+        {
+            "id": "full_images",
+            "parentSelectors": [
+                "items"
+            ],
+            "type": "SelectorImage",
+            "selector": ".zoomImgsCont img",
+            "multiple": true,
+            "delay": 0
+        }
+    ]
+}
