@@ -58,18 +58,28 @@ class FleeceSpider(scrapy.Spider):
         # item['imgs'] = res[3:]
 
         # res = response.css('.desktop-product-gallery__image__picture').css('picture').css('source::attr(srcset)').getall()
-        res = response.css('.product-gallery__item__source').get()
+        # res = response.xpath('//div[contains(@class, "carousel__slide")]//picture').css('img::attr(src)')
+        res = response.css('img::attr(src)').getall()
         print("======"*12)
-        print(res)
+        print(len(res))
         print("======"*12)
         item['imgs'] = res
 
+        for it in item['imgs']:
+            if '.jpg' in it:
+                print(f'https:{it}')
+                web_scraper_order = it.split('/')[6].split('?')[0].split('.')[0]
+                web_scraper_start_url = self.url
+                self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{it}\n")
+        self.file_.close
+
+        # # marcjacobs scrapping
         # for it in item['imgs']:
         #     print(f'https:{it}')
-            # it = it.split(', ')
-            # for i in it:
-                # print(f'https:{i}')
-            # web_scraper_order = it.split("/")[5].split("?")[0]
-            # web_scraper_start_url = self.url
-            # self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{it}\n")
+        #     it = it.split(', ')
+        #     for i in it:
+        #         print(f'https:{i}')
+        #     web_scraper_order = it.split("/")[5].split("?")[0]
+        #     web_scraper_start_url = self.url
+        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{it}\n")
         # self.file_.close
