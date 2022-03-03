@@ -1,0 +1,38 @@
+{
+    "_id": "tommy-hilfiger",
+    "startUrl": [
+        "https://usa.tommy.com/en/mens-clothing"
+    ],
+    "selectors": [
+        {
+            "delay": 0,
+            "id": "category",
+            "multiple": true,
+            "parentSelectors": [
+                "_root"
+            ],
+            "selector": "div.searchCatNavLi a",
+            "type": "SelectorLink"
+        },
+        {
+            "delay": 0,
+            "id": "items",
+            "multiple": true,
+            "parentSelectors": [
+                "category"
+            ],
+            "selector": ".productName a",
+            "type": "SelectorLink"
+        },
+        {
+            "delay": 0,
+            "id": "images",
+            "multiple": true,
+            "parentSelectors": [
+                "items"
+            ],
+            "selector": "img.loaded",
+            "type": "SelectorImage"
+        }
+    ]
+}

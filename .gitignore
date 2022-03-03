@@ -1,3 +1,5 @@
 .idea
 *.csv
 datasets
+scrappy/driver
+__pycache__

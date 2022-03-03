@@ -1,0 +1,48 @@
+{
+    "_id": "tommy-hilfiger-tommy-jeans",
+    "startUrl": [
+        "https://usa.tommy.com/en/tommy-jeans-all"
+    ],
+    "selectors": [
+        {
+            "id": "guys",
+            "parentSelectors": [
+                "_root"
+            ],
+            "type": "SelectorLink",
+            "selector": ".MEN_TH_DENIM a",
+            "multiple": false,
+            "delay": 0
+        },
+        {
+            "id": "category",
+            "parentSelectors": [
+                "guys"
+            ],
+            "type": "SelectorLink",
+            "selector": "div.searchCatNavLi a",
+            "multiple": true,
+            "delay": 0
+        },
+        {
+            "id": "items",
+            "parentSelectors": [
+                "category"
+            ],
+            "type": "SelectorLink",
+            "selector": ".productName a",
+            "multiple": true,
+            "delay": 0
+        },
+        {
+            "id": "images",
+            "parentSelectors": [
+                "items"
+            ],
+            "type": "SelectorImage",
+            "selector": "img.loaded",
+            "multiple": true,
+            "delay": 0
+        }
+    ]
+}
