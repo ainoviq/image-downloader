@@ -1,34 +1,42 @@
+# Data Scraping
+
+### Setup
+
+1. Download chromedriver from [https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads).
+2. Change CHROME_DRIVER_PATH in `/sel_scrapy/sel_scrapy/settings.py`
+    `CHROME_DRIVER_PATH = '/usr/lib/chromedriver/chromedriver'`
+
+### Anaconda Environment for selenium, scrapy
+
+1. `conda create -y --name scraper python=3.8`
+2. scrapy, selenium installation
+    ```bash
+    conda install -c conda-forge scrapy
+    conda install -c conda-forge selenium
+    ```
+
+
+### macOS, Linux Usage
+
+Change your `xpath` and `selector` based on your website and data to scrape in `fleece.py`.
+
+```bash
+cd scrappy/sel_scrapy
+
+scrapy crawl fleece -a category="<CATEGORY_NAME>" -a url="<YOUR_URL_TO_SCRAPE>"
+```
+
 # Image Downloader
-
-Image downloader script finds image urls scraped by Image Selector in a csv file and downloads them.
-Images are renamed to `<web-scraper-oder>-<selector-name>.ext`.
-
-### Windows usage
-
-1. Download and install python 3.x from here:
-[https://www.python.org/downloads/](https://www.python.org/downloads/)
-2. Download image downloader script from here:
-[https://github.com/webscraperio/image-downloader][image-downloader]
-3. Scrape the target site and export data in CSV format
-4. Drag and drop the CSV file on top of the `image-downloader.py`
-![Fig. 1: windows image download][windows-image-download-script]
 
 ### macOS, Linux usage
 
 1. Install python if necessary through your package manager. Most likely you already have it preinstalled.
 2. Download image downloader script from here:
 [https://github.com/webscraperio/image-downloader][image-downloader]
-3. Move `image-downloader.py` to `Downloads` directory
-4. Scrape the target site and export data in CSV format
-5. Save the CSV file in `Downloads` directory
-6. Open `Terminal` application. You should have one preinstalled
-7. Change working to `Downloads` directory by typing:
-    ```bash
-    cd Downloads
-    ```
+7. Change working to `image-downloader` directory.
 8. Run image downloader script by typing:
     ````bash
-    python image-downloader scraped_data.csv
+    python image-downloader /path/to/csv
     ````
 
 ![Fig. 2: macOS image download][osx-image-download-script]
