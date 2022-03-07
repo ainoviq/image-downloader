@@ -18,7 +18,7 @@ class FleeceSpider(scrapy.Spider):
 
         self.category = category
         self.url = url
-        self.file_ = open(f'burberry-{self.category}.csv', 'a')
+        self.file_ = open(f'katespade-{self.category}.csv', 'a')
         self.file_.writelines('web-scraper-order,web-scraper-start-url,category,product-name,image-src\n')
 
         self.headers = {
@@ -32,47 +32,53 @@ class FleeceSpider(scrapy.Spider):
         self.options.headless = False
         self.driver = Chrome(executable_path=self.driver_path, options=self.options)
         self.driver.delete_all_cookies()
-        self.driver.set_page_load_timeout(40)
-        self.driver.implicitly_wait(40)
+        self.driver.set_page_load_timeout(4)
+        self.driver.implicitly_wait(4)
         self.driver.maximize_window()
+        # self.driver.set_window_size(480, 640)
+        print(self.driver.get_window_size())
 
         self.driver.get(self.url)
         try:
-            self.driver.find_element(By.XPATH, '//button[@aria-label="View more products"]').click()
+            buttons = self.driver.find_elements(By.XPATH, '//button[@aria-label="View more products"]')
+            for button in buttons:
+                time.sleep(2)
+                button.click()
+                self.driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
+                time.sleep(2)
         except:
             print(logger.warning('No such element found!'))
-        time.sleep(10)
+        time.sleep(3)
+
         """
             Full page loading
         """
-
-        # time.sleep(10)
-        # prev_height = self.driver.execute_script("return document.body.scrollHeight")
-        # while True:
-        #     self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        #     time.sleep(10)
-        #     new_height = self.driver.execute_script("return document.body.scrollHeight")
-        #     if new_height == prev_height:
-        #         break
-        #     prev_height = new_height
-
         self.driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
-        time.sleep(15)
+        time.sleep(3)
 
     def start_requests(self):
+        """
+            katespade xpath
+        """
+        xpath = '//a[contains(@data-th,"product-link")]'
+    
+        """
+            burberry xpath
+        """
+        # xpath='//div[contains(@class, "product-card")]//a[contains(@class, "product-card__link")]'
+
         """
             marcjacobs xpath
         """
         # xpath='//div[contains(@class, "product-tile")]//a[contains(@class, "name-link")]'
-        # xpath='//a[contains(@class, "lockup-card")]'
-        """
-            burberry xpath
-        """
-        xpath='//div[contains(@class, "product-card")]//a[contains(@class, "product-card__link")]'
+        
         link_elements = self.driver.find_elements_by_xpath(xpath)
 
         for link_el in link_elements:
             href = link_el.get_attribute("href")
+            print('*' * 20)
+            print(href)
+            print('*' * 20)
             yield scrapy.Request(url=href, headers=self.headers)
         self.driver.quit()
 
@@ -80,26 +86,48 @@ class FleeceSpider(scrapy.Spider):
         item = FleeceItem()
 
         """
-            burberry scrapping
+            katespade scraping
         """
+        product_name = response.xpath('//h1[@data-qa="product-name"]/text()').get()
         imgs = response.css('img::attr(src)').getall()
-        product_name = response.css('.product-info-panel__title').css('span::text').get()
-        print("======"*12)
+        item['imgs'] = imgs
+        print("=====" * 12)
         print(product_name)
         print(len(imgs))
-        print("======"*12)
-        
-        item['imgs'] = imgs
-        for it in item['imgs']:
-            if '.jpg' in it:
-                print(f'https:{it}')
-                web_scraper_order = it.split('/')[6].split('?')[0].split('.')[0]
+        print("=====" * 12)
+
+        for it in imgs[1:]:
+            if "productThumbnail" in it:
+                print(it)
+                p1 = it.split("$")
+                web_scraper_order = p1[0].split('/')[6][:-1]
                 web_scraper_start_url = self.url
-                self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{it}\n")
+                img_url = f"{p1[0]}$s7fullsize$"
+                self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{img_url}\n")
         self.file_.close
 
+
         """
-            marcjacobs scrapping
+            burberry scraping
+        """
+        # product_name = response.css('.product-info-panel__title').css('span::text').get()
+        # imgs = response.css('img::attr(src)').getall()
+        # print("======"*12)
+        # print(product_name)
+        # print(imgs)
+        # print("======"*12)
+        
+        # item['imgs'] = imgs
+        # for it in item['imgs']:
+        #     if '.jpg' in it:
+        #         print(f'https:{it}')
+        #         web_scraper_order = it.split('/')[6].split('?')[0].split('.')[0]
+        #         web_scraper_start_url = self.url
+        #         self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{it}\n")
+        # self.file_.close
+
+        """
+            marcjacobs scraping
         """
 
         # res = response.css('.image').css('img::attr(srcset)').getall()
