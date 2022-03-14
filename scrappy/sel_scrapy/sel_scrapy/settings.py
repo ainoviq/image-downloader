@@ -12,9 +12,11 @@ BOT_NAME = 'sel_scrapy'
 SPIDER_MODULES = ['sel_scrapy.spiders']
 NEWSPIDER_MODULE = 'sel_scrapy.spiders'
 CHROME_DRIVER_PATH = '/usr/lib/chromedriver/chromedriver'
+HTTPERROR_ALLOWED_CODES = [404]
+# USER_AGENT = 'quotesbot (+https://www.massimodutti.com/ww)'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'sel_scrapy (+http://www.yourdomain.com)'
+USER_AGENT = 'sel_scrapy (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -25,7 +27,7 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -86,3 +88,4 @@ DEFAULT_REQUEST_HEADERS = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
