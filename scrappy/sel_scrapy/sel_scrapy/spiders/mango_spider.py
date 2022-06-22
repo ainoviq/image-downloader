@@ -8,11 +8,11 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 
 
-class DiorSpider(scrapy.Spider):
-    name = 'dior'
+class MangoSpider(scrapy.Spider):
+    name = 'mango'
 
     def __init__(self, category=None, url=None, *args, **kwargs):
-        super(DiorSpider, self).__init__(*args, **kwargs)
+        super(MangoSpider, self).__init__(*args, **kwargs)
 
         self.category = category
         self.url = url
@@ -28,7 +28,7 @@ class DiorSpider(scrapy.Spider):
         
         self.options = ChromeOptions()
         # self.options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-        self.options.headless = False
+        self.options.headless = True
         self.driver = Chrome(executable_path=self.driver_path, options=self.options)
         # self.driver.delete_all_cookies()
         self.driver.set_page_load_timeout(40)
@@ -37,18 +37,18 @@ class DiorSpider(scrapy.Spider):
         # self.driver.set_window_size(480, 640)
         self.driver.get(self.url)
 
-        # time.sleep(1)
-        # try:
-        #     self.driver.find_element_by_xpath('//*[@id="onetrust-accept-btn-handler"]').click()
-        #     time.sleep(1)
-        #     self.driver.find_element_by_css_selector('#navColumns4').click()
-        # except:
-        #     print('Cookie accepted!')
+        time.sleep(1)
+        try:
+            self.driver.find_element_by_xpath('//*[@id="onetrust-accept-btn-handler"]').click()
+            time.sleep(1)
+            self.driver.find_element_by_css_selector('#navColumns4').click()
+        except:
+            print('Cookie accepted!')
         time.sleep(2)
 
         """scrolling till bottom"""
         element = self.driver.find_element_by_tag_name('body')
-        timeout = time.time() + 25   # 1 minutes from now
+        timeout = time.time() + 60*2   # 2 minutes from now
 
         while True:
             element.send_keys(Keys.PAGE_DOWN)
@@ -57,7 +57,7 @@ class DiorSpider(scrapy.Spider):
                 break
 
     def start_requests(self):
-        xpath = '//a[@class="product-wrapper"]'
+        xpath = '//a[@class="bb1c_"]'
         link_elements = self.driver.find_elements_by_xpath(xpath)
         links = []
 
@@ -69,20 +69,13 @@ class DiorSpider(scrapy.Spider):
             
     def parse_mango_items(self, response):
         self.driver.get(response.url)
-        product_name = self.driver.find_element_by_xpath('//h1//span[@class="multiline-text Titles_title__PAVsd"]').get_attribute('innerHTML')
-        buttons = self.driver.find_elements_by_xpath('//li[@class="product-medias-grid-image"]//button[@class="Media_product-media__nZ4TD product-media"]')
-        imgs = []
-        
-        for button in buttons:
-            button.click()
-            img = self.driver.find_element_by_xpath('//*[@id="imgZoomerViewer"]/div/img').get_attribute('src')
-            print(img)
-            self.driver.find_element_by_xpath('//button[@class="popin__wrapper__close"]').click()
-            imgs.append(img)
+        product_name = self.driver.find_element_by_xpath('//h1[@class="product-name"]').get_attribute('innerHTML')
+        product_name = "No name" if product_name == "&nbsp;" else product_name
+        imgs = self.driver.find_elements_by_xpath('//img[contains(@class,"image-js")]')
+        imgs = [img.get_attribute('src') for img in imgs]
 
         print('+----+' * 10)
-        print(f'{product_name}')
-        print(len(imgs))
+        print(f'{product_name} {len(imgs)}')
         print('+----+' * 10)
 
         for img in range(len(imgs)):
@@ -101,5 +94,5 @@ class DiorSpider(scrapy.Spider):
         print('*-*'*10)
         print(f'Number of image: {self.num}')
         print('*-*'*10)
-        # time.sleep(0.5)
+        time.sleep(0.5)
         # self.driver.quit()

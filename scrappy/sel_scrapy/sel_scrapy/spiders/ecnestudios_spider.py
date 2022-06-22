@@ -8,11 +8,11 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 
 
-class DiorSpider(scrapy.Spider):
-    name = 'dior'
+class EcneStudiosSpider(scrapy.Spider):
+    name = 'ecnestudios'
 
     def __init__(self, category=None, url=None, *args, **kwargs):
-        super(DiorSpider, self).__init__(*args, **kwargs)
+        super(EcneStudiosSpider, self).__init__(*args, **kwargs)
 
         self.category = category
         self.url = url
@@ -37,27 +37,20 @@ class DiorSpider(scrapy.Spider):
         # self.driver.set_window_size(480, 640)
         self.driver.get(self.url)
 
-        # time.sleep(1)
-        # try:
-        #     self.driver.find_element_by_xpath('//*[@id="onetrust-accept-btn-handler"]').click()
-        #     time.sleep(1)
-        #     self.driver.find_element_by_css_selector('#navColumns4').click()
-        # except:
-        #     print('Cookie accepted!')
-        time.sleep(2)
+        # time.sleep(2)
 
         """scrolling till bottom"""
         element = self.driver.find_element_by_tag_name('body')
-        timeout = time.time() + 25   # 1 minutes from now
+        timeout = time.time() + 60*3 # 3 minutes from now
 
         while True:
             element.send_keys(Keys.PAGE_DOWN)
-            time.sleep(0.5)
+            time.sleep(0.2)
             if time.time() > timeout:
                 break
 
     def start_requests(self):
-        xpath = '//a[@class="product-wrapper"]'
+        xpath = '//a[@class="tile__link"]'
         link_elements = self.driver.find_elements_by_xpath(xpath)
         links = []
 
@@ -65,24 +58,29 @@ class DiorSpider(scrapy.Spider):
             links.append(link.get_attribute("href"))
         
         for href in links:
-            yield scrapy.Request(url=href, headers=self.headers, callback=self.parse_mango_items, dont_filter=True)
+            yield scrapy.Request(url=href, headers=self.headers, callback=self.parse_ecne_items, dont_filter=True)
             
-    def parse_mango_items(self, response):
+    def parse_ecne_items(self, response):
         self.driver.get(response.url)
-        product_name = self.driver.find_element_by_xpath('//h1//span[@class="multiline-text Titles_title__PAVsd"]').get_attribute('innerHTML')
-        buttons = self.driver.find_elements_by_xpath('//li[@class="product-medias-grid-image"]//button[@class="Media_product-media__nZ4TD product-media"]')
-        imgs = []
-        
-        for button in buttons:
-            button.click()
-            img = self.driver.find_element_by_xpath('//*[@id="imgZoomerViewer"]/div/img').get_attribute('src')
-            print(img)
-            self.driver.find_element_by_xpath('//button[@class="popin__wrapper__close"]').click()
-            imgs.append(img)
 
+        """scrolling till bottom"""
+        element = self.driver.find_element_by_tag_name('body')
+        timeout = time.time() + 4  # 1 second from now
+
+        while True:
+            element.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.3)
+            if time.time() > timeout:
+                break
+
+        product_name = self.driver.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/div[2]/div[2]/div/div[1]/div[1]/h1').get_attribute('innerText')
+        imgs = self.driver.find_elements_by_xpath('//div[@class="pdp-gallery__image"]//img')
+        imgs = [img.get_attribute('src') for img in imgs]
+        
         print('+----+' * 10)
         print(f'{product_name}')
         print(len(imgs))
+        print(imgs)
         print('+----+' * 10)
 
         for img in range(len(imgs)):
@@ -92,8 +90,8 @@ class DiorSpider(scrapy.Spider):
                 "web-scraper-order": web_scraper_order,
                 "web-scraper-start-url": self.url,
                 "category": self.category,
-                "name": product_name,
-                "image-src": imgs[img].split("?")[0]
+                "product-name": product_name,
+                "image-src": imgs[img]
             }
             self.image_sources.append(items)
         dataframe = pd.DataFrame(self.image_sources)

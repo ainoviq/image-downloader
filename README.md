@@ -1,4 +1,25 @@
-# Image Downloader
+# Data Scraping
+
+### Installation
+
+`conda env create -n scraper --file scraper.yml`\
+`conda activate scraper`
+
+### Run
+`scrapy crawl <NAME> --nolog -a category=<CATEGORY> -a url=<URL>`
+
+Here,
+```
+NAME = filename that were given into any *_spider.py variable name
+CATEGORY = category name
+URL = url website
+```
+
+Inside `*_spider.py` change the `xpath` by setting your targeted `xpath`.
+
+This will write the image urls in a csv file. Then download the images using `image-downloader.py`
+
+## Image Downloader
 
 Image downloader script finds image urls scraped by Image Selector in a csv file and downloads them.
 Images are renamed to `<web-scraper-oder>-<selector-name>.ext`.

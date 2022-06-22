@@ -1,5 +1,6 @@
 .idea
 *.csv
 datasets
+sitemaps
 scrappy/driver
 __pycache__

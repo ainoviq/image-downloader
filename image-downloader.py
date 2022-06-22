@@ -6,6 +6,7 @@ import sys
 import time
 import os
 import logging
+import requests
 
 # http client configuration
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36'
@@ -55,8 +56,37 @@ def download_csv_row_images(row, dest_dir):
             image_url = urljoin(start_url, image_url)
 
             image_filename = "%s-%s" % (id, key[0:-4])
-            download_image(image_url, dest_dir, image_filename)
+            # download_image(image_url, dest_dir, image_filename)
+            download_image_using_requests(image_url, dest_dir, image_filename)
 
+
+def download_image_using_requests(image_url, dest_dir, image_filename):
+    image_url = fix_url(image_url)
+
+    try:
+        logging.info("downloading image %s" % image_url)
+        res = requests.get(image_url, stream=True)
+        content_type = res.headers.get("Content-Type")
+
+        if content_type == 'image/jpeg' or content_type == 'image/jpg':
+            ext = 'jpg'
+        elif content_type == 'image/png':
+            ext = 'png'
+        elif content_type == 'image/gif':
+            ext = 'gif'
+        elif content_type == 'image/webp':
+            ext = 'webp'
+        else:
+            logging.warning("unknown image content type %s" % content_type)
+            return
+
+        image_path = os.path.join(dest_dir, image_filename+"."+ext)
+        if res.status_code == 200:
+            with open(image_path, 'wb') as f:
+                for chunk in res:
+                    f.write(chunk)
+    except Exception as e:
+        logging.warning("Image download error. %s" % e)
 
 def download_image(image_url, dest_dir, image_filename):
 

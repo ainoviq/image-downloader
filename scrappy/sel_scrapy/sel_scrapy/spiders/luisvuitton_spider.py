@@ -8,11 +8,11 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 
 
-class DiorSpider(scrapy.Spider):
-    name = 'dior'
+class LuisVuittonSpider(scrapy.Spider):
+    name = 'luisvuitton'
 
     def __init__(self, category=None, url=None, *args, **kwargs):
-        super(DiorSpider, self).__init__(*args, **kwargs)
+        super(LuisVuittonSpider, self).__init__(*args, **kwargs)
 
         self.category = category
         self.url = url
