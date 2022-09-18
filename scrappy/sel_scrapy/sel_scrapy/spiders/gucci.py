@@ -8,11 +8,11 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 
 
-class LuisVuittonSpider(scrapy.Spider):
-    name = 'luisvuitton'
+class GucciSpider(scrapy.Spider):
+    name = 'gucci'
 
     def __init__(self, category=None, url=None, *args, **kwargs):
-        super(LuisVuittonSpider, self).__init__(*args, **kwargs)
+        super(GucciSpider, self).__init__(*args, **kwargs)
 
         self.category = category
         self.url = url
@@ -30,13 +30,34 @@ class LuisVuittonSpider(scrapy.Spider):
         # self.options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         self.options.headless = False
         self.driver = Chrome(executable_path=self.driver_path, options=self.options)
+        # self.driver.delete_all_cookies()
         self.driver.set_page_load_timeout(40)
         self.driver.implicitly_wait(40)
         self.driver.maximize_window()
+        # self.driver.set_window_size(480, 640)
         self.driver.get(self.url)
 
+        time.sleep(2)
+
+        """scrolling till bottom"""
+        element = self.driver.find_element_by_tag_name('body')
+        timeout = time.time() + 60*2   # 2 minutes from now
+
+        while True:
+            element.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.5)
+            try:
+                view_more_btn = self.driver.find_elements_by_xpath('//a[@class="name-link"]')
+                for btn in view_more_btn:
+                    btn.click()
+            except:
+                print("Done with more")
+            if time.time() > timeout:
+                break
+
     def start_requests(self):
-        xpath = '//a[@class="lv-smart-link" and @class="lv-product-card__url"]'
+        """gucci"""
+        xpath = '//a[@class="product-tiles-grid-item-link js-ga-track"]'
         link_elements = self.driver.find_elements_by_xpath(xpath)
         links = []
 
@@ -44,26 +65,13 @@ class LuisVuittonSpider(scrapy.Spider):
             links.append(link.get_attribute("href"))
         
         for href in links:
-            print(href)
-            yield scrapy.Request(url=href, headers=self.headers, callback=self.parse_mango_items, dont_filter=True)
+            yield scrapy.Request(url=href, headers=self.headers, dont_filter=True)
             
-    def parse_mango_items(self, response):
-        self.driver.get(response.url)
-        product_name = self.driver.find_element_by_xpath('//h1//span[@class="multiline-text Titles_title__PAVsd"]').get_attribute('innerHTML')
-        buttons = self.driver.find_elements_by_xpath('//li[@class="product-medias-grid-image"]//button[@class="Media_product-media__nZ4TD product-media"]')
-        imgs = []
-        
-        for button in buttons:
-            button.click()
-            img = self.driver.find_element_by_xpath('//*[@id="imgZoomerViewer"]/div/img').get_attribute('src')
-            print(img)
-            self.driver.find_element_by_xpath('//button[@class="popin__wrapper__close"]').click()
-            imgs.append(img)
-
-        print('+----+' * 10)
-        print(f'{product_name}')
-        print(len(imgs))
-        print('+----+' * 10)
+    def parse(self, response):
+        """gucci scraping"""
+        product_name = response.css('h1.product-name.product-detail-product-name::text').get()
+        imgs = response.xpath('//img[@class="item-content product-detail-carousel-image zoom-item"]/@currentSrc').getall()
+        imgs = response.css('img.item-content::attr(srcset)').getall()
 
         for img in range(len(imgs)):
             self.num += 1
@@ -81,5 +89,4 @@ class LuisVuittonSpider(scrapy.Spider):
         print('*-*'*10)
         print(f'Number of image: {self.num}')
         print('*-*'*10)
-        # time.sleep(0.5)
-        # self.driver.quit()
+        time.sleep(0.5)

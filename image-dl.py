@@ -1,11 +1,17 @@
 #! /usr/bin/env python3
 
 import csv
+from io import BytesIO
 import shutil
 import sys
 import time
 import os
 import logging
+import requests
+from PIL import Image
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 # http client configuration
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36'
@@ -64,6 +70,13 @@ def download_image(image_url, dest_dir, image_filename):
 
     try:
         logging.info("downloading image %s" % image_url)
+        res = requests.get(image_url).text
+        res.raise_for_status()
+        bytes = BytesIO(res.content)
+        image = Image.open(bytes)
+        image.save("1.jpg")
+        print(res)
+
         tmp_file_name, headers = urlretrieve(image_url)
         content_type = headers.get("Content-Type")
 

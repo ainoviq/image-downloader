@@ -3,7 +3,7 @@ from logging import warning
 import time
 import scrapy
 from scrapy.utils.project import get_project_settings
-from selenium.webdriver import Chrome, ChromeOptions
+from selenium.webdriver import Chrome, ChromeOptions, ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,7 +11,7 @@ from sel_scrapy.items import FleeceItem
 
 
 class FleeceSpider(scrapy.Spider):
-    name = 'fleece'
+    name = 'nord'
 
     def __init__(self, category=None, url=None, *args, **kwargs):
         super(FleeceSpider, self).__init__(*args, **kwargs)
@@ -35,12 +35,27 @@ class FleeceSpider(scrapy.Spider):
         self.options = ChromeOptions()
         self.options.headless = False
         self.driver = Chrome(executable_path=self.driver_path, options=self.options)
-        # self.driver.delete_all_cookies()
+        self.driver.delete_all_cookies()
         self.driver.set_page_load_timeout(40)
         self.driver.implicitly_wait(5)
         self.driver.maximize_window()
-        # self.driver.set_window_size(480, 640)
+        self.driver.set_window_size(480, 640)
         self.driver.get(self.url)
+
+        """
+            Captcha hold the door
+        """
+        
+        # element = self.driver.find_element_by_css_selector('#px-captcha')
+        # action = ActionChains(self.driver)
+        # click = ActionChains(self.driver)
+        # action.click_and_hold(element)
+        # action.perform()
+        # time.sleep(10)
+        # action.release(element)
+        # action.perform()
+        # time.sleep(0.2)
+        # action.release(element)
 
         """Handle load more button"""
         # try:
@@ -77,7 +92,7 @@ class FleeceSpider(scrapy.Spider):
 
     def start_requests(self):
         """tom tailor"""
-        xpath = '//a[@class="text-link text-link--dark-blue product-tile__h5 text-link--no-underline"]'
+        xpath = '//article/div/h3/a'
         """zara"""
         # xpath = '//a[@class="product-link _item product-grid-product-info__name link"]'
         # xpath = '//a[@class="product-link product-grid-product__link link"]'
@@ -93,6 +108,8 @@ class FleeceSpider(scrapy.Spider):
         # xpath = '//a[@class="js-product-tile-link"]'
         """ioana ciolacu"""
         # xpath = '//div[@class="product_image with_second_image second_image_loaded"]//a'
+        """gucci"""
+        # xpath = '//a[@class="product-tiles-grid-item-link js-ga-track"]'
         """katespade xpath"""
         # xpath = '//a[contains(@data-th,"product-link")]'
         """burberry xpath"""
@@ -110,13 +127,13 @@ class FleeceSpider(scrapy.Spider):
     def parse(self, response):
         item = FleeceItem()
         """tom tailor scraping"""
-        product_name = response.css('h1.product-tile__h5::text').get()
-        imgs = response.xpath('//div[@class="product-gallery__image"]//img/@src').getall()
-        imgs = list(dict.fromkeys(imgs))
+        product_name = response.css('h1._39r2W gFaKF _3jNIn _36liS::text').get()
+        imgs = response.xpath('//div[contains(@class, "_39fQ4")]/div/div')
+        # imgs = list(dict.fromkeys(imgs))
 
         print('+----+' * 10)
         print(product_name)
-        print(len(imgs))
+        print(imgs)
         # print(imgs)
         print('+----+' * 10)
 

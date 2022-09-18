@@ -51,10 +51,10 @@ def fix_url(url):
 
 def download_csv_row_images(row, dest_dir):
     for key in row:
-        start_url = row['web-scraper-start-url']
-        id = row['web-scraper-order']
+        start_url = row['link']
+        id = row['order']
 
-        if key.endswith("-src"):
+        if key.endswith("_src"):
             image_url = row[key]
             image_url = urljoin(start_url, image_url)
 
