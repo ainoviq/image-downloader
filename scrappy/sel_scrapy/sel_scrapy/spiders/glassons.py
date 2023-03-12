@@ -1,12 +1,9 @@
-from asyncio.log import logger
 import time
-from logging import warning
-import pandas as pd
 import time
 import scrapy
 from scrapy.utils.project import get_project_settings
 from selenium.webdriver import Chrome, ChromeOptions
-from selenium.webdriver.common.keys import Keys
+
 
 from sel_scrapy.itemGlassons import GlassonsItem
 
@@ -42,9 +39,54 @@ class GlassonsSpider(scrapy.Spider):
         # self.driver.get(self.url)
 
     def start_requests(self):
-        # xpath = '//a[@class="product-tiles-grid-item-link js-ga-track"]'
-        # link_elements = self.driver.find_elements_by_xpath(xpath)
-        links = [
+        link_shirts = [
+            "https://www.glassons.com/p/split-long-sleeve-sheer-shirt-tc55498pln-milk",
+            "https://www.glassons.com/p/split-long-sleeve-sheer-shirt-tc55498pln-black",
+            "https://www.glassons.com/p/recycled-satin-long-sleeve-shirt-bl54783-rsat-milk",
+            "https://www.glassons.com/p/recycled-satin-long-sleeve-shirt-bl54783-rsat-lunar",
+            "https://www.glassons.com/p/recycled-satin-long-sleeve-shirt-bl54783-rsat-happy-hour",
+            "https://www.glassons.com/p/recycled-satin-long-sleeve-shirt-bl54783-rsat-black",
+            "https://www.glassons.com/p/oversized-satin-button-through-shirt-bl53372vis-milk",
+            "https://www.glassons.com/p/oversized-satin-button-through-shirt-bl53372vis-black",
+            "https://www.glassons.com/p/recycled-spot-satin-long-sleeve-shirt-bl54783-rprt-mini-spot",
+            "https://www.glassons.com/p/long-sleeve-hook-eye-blouse-bl54075vis-once-and-floral",
+            "https://www.glassons.com/p/cropped-long-sleeve-shirt-bl55019pop-white",
+            "https://www.glassons.com/p/traceable-classic-long-sleeve-shirt-bl54863-tc-d-head-in-the-sand-milk",
+            "https://www.glassons.com/p/stripe-cropped-long-sleeve-shirt-bl55019stp-blue-white-stripe",
+            "https://www.glassons.com/p/recycled-print-mesh-long-sleeve-top-tc51530-rprt-tobias-records",
+            "https://www.glassons.com/p/long-sleeve-hook-eye-blouse-bl54075vis-milk",
+            "https://www.glassons.com/p/oversized-plisse-button-through-shirt-tc51120pli-black",
+            "https://www.glassons.com/p/oversized-cotton-shirt-bl48432pop-cowboy-blues",
+            "https://www.glassons.com/p/textured-button-through-short-sleeve-shirt-tc51541tex-cowboy-blues",
+            "https://www.glassons.com/p/ruched-front-long-sleeve-blouse-tc53822chk-milk",
+            "https://www.glassons.com/p/ruched-front-long-sleeve-blouse-tc53822chk-brown-gingham",
+            "https://www.glassons.com/p/textured-button-through-shirt-bl54863pln-milk",
+            "https://www.glassons.com/p/textured-button-through-shirt-bl54863pln-dj-tan",
+            "https://www.glassons.com/p/textured-button-through-shirt-bl54863pln-black",
+            "https://www.glassons.com/p/long-sleeve-hook-eye-blouse-bl54075vis-tobias-blue",
+            "https://www.glassons.com/p/long-sleeve-hook-eye-blouse-bl54075vis-black",
+            "https://www.glassons.com/p/zig-zag-plisse-button-through-shirt-tc53683pli-milk",
+            "https://www.glassons.com/p/ruched-side-split-long-sleeve-blouse-tc55161pln-cowboy-blues",
+            "https://www.glassons.com/p/ruched-side-split-long-sleeve-blouse-tc55161pln-rice-cake",
+            "https://www.glassons.com/p/recycled-satin-ruched-front-long-sleeve-blouse-bl53902-raus-milk",
+            "https://www.glassons.com/p/recycled-satin-ruched-front-long-sleeve-blouse-bl53902-raus-black",
+            "https://www.glassons.com/p/textured-long-sleeve-shirt-tc54865tex-milk",
+            "https://www.glassons.com/p/textured-long-sleeve-shirt-tc54865tex-fireball",
+            "https://www.glassons.com/p/textured-long-sleeve-shirt-tc54865tex-black",
+            "https://www.glassons.com/p/print-textured-button-throught-shirt-tc51120prt-mono-doodles",
+            "https://www.glassons.com/p/recycled-cord-long-sleeve-shirt-bl53370-rcor-hot-cocoa",
+            "https://www.glassons.com/p/recycled-cord-long-sleeve-shirt-bl53370-rcor-green-tambourine",
+            "https://www.glassons.com/p/oversized-cotton-shirt-bl48432pop-white",
+            "https://www.glassons.com/p/recycled-print-mesh-long-sleeve-top-tc51530-rprt-when-in-rome",
+            "https://www.glassons.com/p/recycled-mesh-ruched-front-shirt-tc51530-rmsh-black",
+            "https://www.glassons.com/p/recycled-cord-super-oversized-shirt-bl53371-rcor-green-tambourine",
+            "https://www.glassons.com/p/wrap-tie-long-sleeve-collared-blouse-bl53998lyo-im-a-little-chili",
+            "https://www.glassons.com/p/recycled-print-mesh-long-sleeve-top-tc51530-rprt-kermit-dip-dye",
+            "https://www.glassons.com/p/curve-hem-v-neck-collared-cropped-long-sleeve-tl51333ton-sweet-potato",
+            "https://www.glassons.com/p/curve-hem-v-neck-collared-cropped-long-sleeve-tl51333ton-seas-the-day",
+            "https://www.glassons.com/p/ruched-button-front-shortsleeve-top-tc51863pln-funny-bone"
+        ]
+        link_tops = [
             "https://www.glassons.com/p/supersoft-bandeau-super-crop-top-tv55493pln-black",
             "https://www.glassons.com/p/ruched-super-crop-top-tv55497pln-milk",
             "https://www.glassons.com/p/split-long-sleeve-sheer-shirt-tc55498pln-milk",
@@ -688,11 +730,8 @@ class GlassonsSpider(scrapy.Spider):
             "https://www.glassons.com/p/re-worked-denim-halter-top-bv54829vin-vintage",
             "https://www.glassons.com/p/oversized-embroidered-crew-neck-jumper-tl50246-pemb-aspen-pale-grey"
         ]
-       
-        # for link in link_elements:
-        #     links.append(link.get_attribute("href"))
 
-        for href in links:
+        for href in link_shirts:
             self.driver.get(href)
             name = self.driver.find_elements_by_css_selector(
                 '.product-summary__heading')[0].text

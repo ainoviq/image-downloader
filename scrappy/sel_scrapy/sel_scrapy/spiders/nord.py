@@ -7,7 +7,7 @@ from selenium.webdriver import Chrome, ChromeOptions, ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from sel_scrapy.items import FleeceItem
+from sel_scrapy.items import Item
 
 
 class FleeceSpider(scrapy.Spider):
@@ -125,7 +125,7 @@ class FleeceSpider(scrapy.Spider):
         self.driver.quit()
 
     def parse(self, response):
-        item = FleeceItem()
+        item = Item()
         """tom tailor scraping"""
         product_name = response.css('h1._39r2W gFaKF _3jNIn _36liS::text').get()
         imgs = response.xpath('//div[contains(@class, "_39fQ4")]/div/div')

@@ -7,7 +7,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from sel_scrapy.items import FleeceItem
+from sel_scrapy.items import Item
 
 
 class FleeceSpider(scrapy.Spider):
@@ -108,7 +108,7 @@ class FleeceSpider(scrapy.Spider):
         self.driver.quit()
 
     def parse(self, response):
-        item = FleeceItem()
+        item = Item()
         """tom tailor scraping"""
         product_name = response.css('h1.product-tile__h5::text').get()
         imgs = response.xpath('//div[@class="product-gallery__image"]//img/@src').getall()
@@ -125,125 +125,3 @@ class FleeceSpider(scrapy.Spider):
             web_scraper_start_url = self.url
             self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{imgs[img].replace('/560_745/', '/1654_2200/')}\n")
         self.file_.close
-
-        """zara scraping"""
-        # product_name = response.css('h1.product-detail-info__header-name::text').get()
-        # imgs = response.xpath('//picture[@class="media-image"]/source[@sizes="100vw"]/@srcset').getall()
-
-        # print('+----+' * 10)
-        # print(product_name)
-        # print(len(imgs))
-        # print('+----+' * 10)
-
-        # for img in range(len(imgs)):
-        #     web_scraper_order = f'{int(time.time_ns())}_{img}'
-        #     web_scraper_start_url = self.url
-        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{imgs[img].split(' ')[2].replace('w/750/', 'w/2048/')}\n")
-        # self.file_.close
-
-        """massimo dutti scraping"""
-        # product_name = response.xpath('//h1[contains(@class, "text-20-b pb-16 ttu")]/text()').get()
-        # imgs = response.xpath('//div[@class="p-view placeholder"]/img/@src').getall()
-
-        # print(product_name)
-        # print(imgs)
-
-        """public rec scraping"""
-        # product_name = response.css("h1.css-17yz6ma::text").get()
-        # imgs = response.xpath('//div[contains(@class, "css-1gphjnj")]//div//div//div//img/@src').getall()
-         
-        # for img in imgs:
-        #     print(f'https:{img}\n')
-
-        """dior scraping"""
-
-        # product_name = response.css("h1").css("span.multiline-text.Titles_title__PAVsd::text").get()
-        # buttons = response.xpath('//li[@class="product-medias-grid-image"]//button[@class="Media_product-media__nZ4TD product-media"]').getall()
-
-        # for img in range(len(imgs[1:])):
-        #     web_scraper_order = f'{int(time.time_ns())}_{img}'
-        #     web_scraper_start_url = self.url
-        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{imgs[img]}\n")
-        # self.file_.close
-
-        """lacoste scraping"""
-
-        # product_name = response.css('h1.title--medium.l-vmargin--medium.padding-m-1::text').get()
-        # imgs = response.xpath('//li//button[contains(@class, "js-slideshow-bullet slideshow-nav-item is-image")]//img/@data-src').getall()
-
-        # for img in range(len(imgs)):
-        #     web_scraper_order = f'{int(time.time_ns())}_{img}'
-        #     web_scraper_start_url = self.url
-        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{imgs[img].split('?')[0]}\n")
-        # self.file_.close
-
-        """ioana ciolacu scraping"""
-
-        # product_name = response.css('h1.product_title.entry-title::text').get()
-        # imgs = response.css('div.jet-woo-product-gallery__image.jet-woo-product-gallery__image--with-zoom').css('img::attr(src)').getall()
-
-        # for img in range(len(imgs)):
-        #     web_scraper_order = f'{int(time.time_ns())}_{img}'
-        #     web_scraper_start_url = self.url
-        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{imgs[img]}\n")
-        # self.file_.close
-
-        """gucci scraping"""
-        # product_name = response.css('h1.product-name.product-detail-product-name::text').get()
-        # # imgs = response.xpath('//img[@class="item-content product-detail-carousel-image zoom-item"]/@currentSrc').getall()
-        # imgs = response.css('img.item-content::attr(srcset)').getall()
-        
-        # for it in imgs:
-        #     print(it)
-        #     web_scraper_order = it.split("/")[5]
-        #     web_scraper_start_url = self.url
-        #     img_url = it.replace('490x490', '2400x2400')
-        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{img_url}\n")
-        # self.file_.close
-
-        """guess scraping"""
-        # product_name = response.xpath('//h1[@class="product-name"]/text()').get()
-        # # imgs = response.xpath('//div[@class="css-b7jmoi"]//img[@width="509"]/@src').getall()
-
-        """katespade scraping"""
-        # product_name = response.xpath('//h1[@data-qa="product-name"]/text()').get()
-        # imgs = response.css('img::attr(src)').getall()
-        # item['imgs'] = imgs
-
-        # for it in imgs[1:]:
-        #     if "productThumbnail" in it:
-        #         print(it)
-        #         p1 = it.split("$")
-        #         web_scraper_order = p1[0].split('/')[6][:-1]
-        #         web_scraper_start_url = self.url
-        #         img_url = f"{p1[0]}$s7fullsize$"
-        #         self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{img_url}\n")
-        # self.file_.close
-
-        """burberry scraping"""
-        # product_name = response.css('.product-info-panel__title').css('span::text').get()
-        # imgs = response.css('img::attr(src)').getall()
-        
-        # item['imgs'] = imgs
-        # for it in item['imgs']:
-        #     if '.jpg' in it:
-        #         print(f'https:{it}')
-        #         web_scraper_order = it.split('/')[6].split('?')[0].split('.')[0]
-        #         web_scraper_start_url = self.url
-        #         self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{product_name},{it}\n")
-        # self.file_.close
-
-        """marcjacobs scraping"""
-
-        # res = response.css('.image').css('img::attr(srcset)').getall()
-        # item['imgs'] = res[3:]
-
-        # for it in item['imgs']:
-        #     print(f'https:{it}')
-        #     it = it.split(', ')
-        #     for i in it:
-        #         print(f'https:{i}')
-        #     web_scraper_order = it.split("/")[5].split("?")[0]
-        #     web_scraper_start_url = self.url
-        #     self.file_.writelines(f"{web_scraper_order},{web_scraper_start_url},{self.category},{it}\n")
-        # self.file_.close

@@ -1,25 +1,15 @@
-#! /usr/bin/env python3
-
-import csv
-import shutil
+import os
 import sys
 import time
-import os
-import logging
+import pandas as pd
+import json
+import argparse
 import requests
 
-import http.client
-
-# http client configuration
-user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36'
-
-# logging configuration
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 python_version = sys.version_info.major
-logging.info("executed by python %d" % python_version)
+user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
 
-# compatability with python 2
 if python_version == 3:
     import urllib.parse
     import urllib.request
@@ -32,7 +22,7 @@ if python_version == 3:
     opener.addheaders = [('User-agent', user_agent)]
     urllib.request.install_opener(opener)
 else:
-    import urlparse
+    from urllib.parse import urlparse
     import urllib
     urljoin = urlparse.urljoin
     urlretrieve = urllib.urlretrieve
@@ -45,41 +35,24 @@ else:
 
 
 def fix_url(url):
-    url = quote(url, safe="%/:=&?~#+!$,;'@()*[]")
+    url = quote(str(url), safe="%/:=&?~#+!$,;'@()*[]")
     return url
 
 
-def download_csv_row_images(row, dest_dir):
-    for key in row:
-        start_url = row['link']
-        id = row['order']
-
-        if key.endswith("_src"):
-            image_url = row[key]
-            image_url = urljoin(start_url, image_url)
-
-            image_filename = "%s-%s" % (id, key[0:-4])
-            gucci_dl(image_url, dest_dir, image_filename)
-            # download_image(image_url, dest_dir, image_filename)
-            # download_image_using_requests(image_url, dest_dir, image_filename)
+headers = {
+    'User-Agent': "insomnia/2022.5.1",
+    'Content-Type': "application/json",
+    "Accept": "*/*"
+}
 
 
-"""gucci and armani"""
-
-
-def gucci_dl(image_url, dest_dir, image_filename):
-    image_url = fix_url(image_url)
-    payload = ""
-    headers = {
-        "User-Agent": "insomnia/2022.5.1",
-        "Content-Type": "application/json",
-        "Accept": "*/*",
-
-    }
+def download(url, opt):
+    link = fix_url(url)
+    # link = f'https:{link}'
     try:
-        with requests.get(url=image_url, data=payload, headers=headers, stream=True) as res:
+        print(f'Info: downloading from {link}')
+        with requests.get(url=link, data="", headers=headers, stream=True) as res:
             content_type = res.headers.get('Content-Type')
-            print(content_type)
             if content_type == 'image/jpeg' or content_type == 'image/jpg':
                 ext = 'jpg'
             elif content_type == 'image/png':
@@ -89,143 +62,38 @@ def gucci_dl(image_url, dest_dir, image_filename):
             elif content_type == 'image/webp':
                 ext = 'webp'
             else:
-                logging.warning("unknown image content type %s" % content_type)
+                print("Warning: unknown image content type %s" % content_type)
                 return
-
-            res.raise_for_status()
-            with open(os.path.join(dest_dir, image_filename + "." + ext), 'wb') as f:
+            filename = f'{int(time.time_ns())}'
+            with open(os.path.join(opt.output, f'{filename}.{ext}'), "wb") as img_file:
                 for chunk in res.iter_content(chunk_size=None):
-                    # If you have chunk encoded response uncomment if
-                    # and set chunk_size parameter to None.
-                    # if chunk:
-                    f.write(chunk)
+                    img_file.write(chunk)
     except Exception as e:
-        logging.warning("Image download error. %s" % e)
+        print(f'Warning: failed to download. See log: \n{e}\n')
 
 
-def download_image_using_requests(image_url, dest_dir, image_filename):
-    image_url = fix_url(image_url)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--file', type=str,
+                        default=None, help='input json file')
+    parser.add_argument('-o', '--output', type=str,
+                        default='output', help='output directory')
+    opt = parser.parse_args()
+    print(opt)
 
-    try:
-        logging.info("downloading image %s" % image_url)
-        res = requests.get(image_url, stream=True)
-        content_type = res.headers.get("Content-Type")
-
-        if content_type == 'image/jpeg' or content_type == 'image/jpg':
-            ext = 'jpg'
-        elif content_type == 'image/png':
-            ext = 'png'
-        elif content_type == 'image/gif':
-            ext = 'gif'
-        elif content_type == 'image/webp':
-            ext = 'webp'
-        else:
-            logging.warning("unknown image content type %s" % content_type)
-            return
-
-        image_path = os.path.join(dest_dir, image_filename+"."+ext)
-        if res.status_code == 200:
-            with open(image_path, 'wb') as f:
-                for chunk in res:
-                    f.write(chunk)
-    except Exception as e:
-        logging.warning("Image download error. %s" % e)
-
-
-def download_image(image_url, dest_dir, image_filename):
-
-    image_url = fix_url(image_url)
-
-    try:
-        logging.info("downloading image %s" % image_url)
-        tmp_file_name, headers = urlretrieve(image_url)
-        content_type = headers.get("Content-Type")
-
-        if content_type == 'image/jpeg' or content_type == 'image/jpg':
-            ext = 'jpg'
-        elif content_type == 'image/png':
-            ext = 'png'
-        elif content_type == 'image/gif':
-            ext = 'gif'
-        elif content_type == 'image/webp':
-            ext = 'webp'
-        else:
-            logging.warning("unknown image content type %s" % content_type)
-            return
-
-        image_path = os.path.join(dest_dir, image_filename+"."+ext)
-        shutil.move(tmp_file_name, image_path)
-    except Exception as e:
-        logging.warning("Image download error. %s" % e)
-
-
-def get_csv_image_dir(csv_filename):
-
-    base = os.path.basename(csv_filename)
-    dir = os.path.splitext(base)[0]
-
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-    return dir
-
-
-def download_csv_file_images(filename):
-
-    logging.info("importing data from %s" % filename)
-
-    dest_dir = get_csv_image_dir(filename)
-
-    # check whether csv file has utf-8 bom char at the beginning
-    skip_utf8_seek = 0
-    with open(filename, "rb") as csvfile:
-        csv_start = csvfile.read(3)
-        if csv_start == b'\xef\xbb\xbf':
-            skip_utf8_seek = 3
-
-    with open(filename, "r", encoding="utf8") as csvFile:
-
-        # remove ut-8 bon sig
-        csvFile.seek(skip_utf8_seek)
-
-        csvreader = csv.DictReader(csvFile)
-
-        category_list = []
-        for row in csvreader:
-            category_list.append(row['category'])
-        category_list = list(set(category_list))
-
-        for dir in category_list:
-            if os.path.exists(os.path.join(dest_dir, dir)):
-                print('Directory already exists. Skipping...')
-            else:
-                os.makedirs(os.path.join(dest_dir, dir))
-        csvFile.close()
-
-    with open(filename, "r", encoding="utf8") as csvfile:
-
-        # remove ut-8 bon sig
-        csvfile.seek(skip_utf8_seek)
-
-        csvreader = csv.DictReader(csvfile)
-
-        for row in csvreader:
-            download_csv_row_images(
-                row, os.path.join(dest_dir, row['category']))
-
-
-def main(args):
-
-    # filename passde through args
-    if len(args) >= 2:
-        csv_filename = args[1]
-        download_csv_file_images(csv_filename)
-        logging.info("image download completed")
-
+    if os.path.exists(opt.output):
+        print('Info: output directory exists')
     else:
-        logging.warning("no input file found")
+        os.makedirs(opt.output)
+        print('Info: output directory created as %s' % opt.output)
 
-    time.sleep(10)
+    with open(opt.file, 'r', encoding='utf-8') as file:
+        data = json.loads(file.read())
 
+        dataframe = pd.DataFrame(data=data)
+        img_urls = dataframe["imgs_src"]
 
-main(sys.argv)
+        for url_li in img_urls:
+            for url in url_li:
+                # url =  url[2:]
+                download(url=url, opt=opt)
