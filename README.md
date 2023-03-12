@@ -5,7 +5,13 @@
 `conda env create -n scraper --file scraper.yml`\
 `conda activate scraper`
 
+### Chromedriver
+Download chromedriver from [here](https://chromedriver.chromium.org/home) same version as your chrome version and save it into your `path/to/chromedriver`. Now, in `scrappy/sel_scrapy/sel_scrapy/settings.py` find the line `CHROME_DRIVER_PATH` and replace the path with your chromedriver path.
+
 ### Run
+
+`cd` into your `scrappy/sel_scrapy` directory and run,
+
 `scrapy crawl <NAME> --nolog -a category=<CATEGORY> -a url=<URL>`
 
 Here,
@@ -15,7 +21,7 @@ CATEGORY = category name
 URL = url website
 ```
 
-Inside `*_spider.py` change the `xpath` by setting your targeted `xpath`.
+**NB:** Inside `*_spider.py` change the `xpath` by setting your targeted `xpath`.
 
 This will write the image urls in a csv file. Then download the images using `image-downloader.py`
 
